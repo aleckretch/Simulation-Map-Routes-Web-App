@@ -64,9 +64,9 @@ function coordinatesForMeter(meter) { //get the geo location for a specific poin
 }
 function pointForCoordinates(coordinatesSegment) {
 	return {
-        "type": "Point",
-        "coordinates": coordinatesSegment
-    };
+		"type": "Point",
+		"coordinates": coordinatesSegment
+	};
 }
 var kmph; //user entered value
 var prevTimestamp = 0;
