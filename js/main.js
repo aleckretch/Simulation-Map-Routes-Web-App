@@ -36,25 +36,18 @@ function calcRoute() {
 	});
 }
 function coordinatesForMeter(meter) { //get the geo location for a specific point of the marker on the route
-	var segment = 0; //find the segment (the step that the simulation marker is at)
-	var totalDistance = 0;
-	var metersOnSegment = 0;
-	var prevDistance = 0;
-	for (var i=0; i<distances.length; i++) {
-		totalDistance = prevDistance + distances[i]; //add the segment distance to the total distance
-		if (meter<totalDistance) { //as soon as the meter is greater than the total distance, that will be the current segment
-			metersOnSegment = meter-prevDistance;
-			segment = i;
-			break;
-		}
-		prevDistance = totalDistance;
+	if (meter > distanceFromStartToEndOfCurrentSegment) {
+		currentSegment += 1;
+		distanceFromStartToEndOfCurrentSegment += distances[currentSegment];
 	}
+	var segmentDistance = distances[currentSegment];
+	var prevDistance = distanceFromStartToEndOfCurrentSegment - distances[currentSegment];
+	var metersOnSegment = meter - prevDistance;
 	//to find the point, get the percentage of the marker along the path and multiply that by the segment distance and add that to the lng/lat origins of the step
-	var segmentDistance = distances[i];
-	var beginningLng = coordinates[segment][0];
-	var beginningLat = coordinates[segment][1];
-	var endingLng = coordinates[segment+1][0]; //note: there will always be one more coordinates set than distances
-	var endingLat = coordinates[segment+1][1];
+	var beginningLng = coordinates[currentSegment][0];
+	var beginningLat = coordinates[currentSegment][1];
+	var endingLng = coordinates[currentSegment+1][0]; //note: there will always be one more coordinates set than distances
+	var endingLat = coordinates[currentSegment+1][1];
 	var differenceLng = parseFloat(endingLng-beginningLng).toPrecision(12);
 	var differenceLat = parseFloat(endingLat-beginningLat).toPrecision(12);
 	var segmentPercentDone = metersOnSegment / segmentDistance;
@@ -73,6 +66,8 @@ var prevTimestamp = 0;
 var pointCount = 0; //track points made to give all a unique id
 var pointExists = false;
 var animateRequest; //create a variable for the animation requests to cancel them when necessary
+var currentSegment;
+var distanceFromStartToEndOfCurrentSegment;
 function simulateRoute() {
 	kmph = document.getElementsByName("simulationSpeed")[0].value;
 	if (kmph > 0) { //if the kmph is 0 the marker will stay in place
@@ -92,6 +87,8 @@ function simulateRoute() {
 			}
 		});
 		pointExists = true;
+		currentSegment = 0;
+		distanceFromStartToEndOfCurrentSegment = distances[currentSegment];
 		animateSimulation(0, 0);
 	}
 }
