@@ -36,7 +36,7 @@ function calcRoute() {
 	});
 }
 function coordinatesForMeter(meter) { //get the geo location for a specific point of the marker on the route
-	if (meter > distanceFromStartToEndOfCurrentSegment) {
+	if (meter > distanceFromStartToEndOfCurrentSegment) { //if the meter is greater than the end of the current segment, move to the next segment
 		currentSegment += 1;
 		distanceFromStartToEndOfCurrentSegment += distances[currentSegment];
 	}
@@ -87,8 +87,8 @@ function simulateRoute() {
 			}
 		});
 		pointExists = true;
-		currentSegment = 0;
-		distanceFromStartToEndOfCurrentSegment = distances[currentSegment];
+		currentSegment = 0; //reset the segment to 0 for each simulation
+		distanceFromStartToEndOfCurrentSegment = distances[currentSegment]; //and the distance will be the end of the first segment (index 0)
 		animateSimulation(0, 0);
 	}
 }
