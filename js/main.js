@@ -10,28 +10,26 @@ function calcRoute() {
 	directionsService.route(request, function(result, status) { //a call to the Google Maps API to get the steps
 		if (status == 'OK') {
 			if (result.routes.length > 0) { //Google Maps may return multiple routes
-				if (result.routes[0].legs.length > 0) { //the first route (index 0) will be the best... Same with legs
-					routeDistance = result.routes[0].legs[0].distance.value;
-					if (result.routes[0].legs[0].steps.length > 0) {
-						coordinates = []
-						distances = []
-						for (var i=0; i<result.routes[0].legs[0].steps.length; i++) { //navigate through each step
-							var startLng = result.routes[0].legs[0].steps[i].start_location.lng();
-							var startLat = result.routes[0].legs[0].steps[i].start_location.lat();
-							var startLngLat = [startLng, startLat];
-							var distanceBetween = result.routes[0].legs[0].steps[i].distance.value; //the distance of this step
-							coordinates.push(startLngLat); //save the start and end coordinates
-							distances.push(distanceBetween); //track the distances for the animation
-							if (i==result.routes[0].legs[0].steps.length-1) { //last step, add ending point
-								var endLng = result.routes[0].legs[0].steps[i].end_location.lng();
-								var endLat = result.routes[0].legs[0].steps[i].end_location.lat();
-								var endLngLat = [endLng, endLat];
-								coordinates.push(endLngLat);
-							}
+				routeDistance = result.routes[0].legs[0].distance.value;
+				if (result.routes[0].overview_path.length > 0) {
+					coordinates = []
+					distances = []
+					for (var i=0; i<result.routes[0].overview_path.length; i++) { //navigate through each step
+						var startLng = result.routes[0].overview_path[i].lng();
+						var startLat = result.routes[0].overview_path[i].lat();
+						var startLngLat = [startLng, startLat];
+						coordinates.push(startLngLat);
+						if (i!=result.routes[0].overview_path.length-1) { //not the last step, so add distance between this step and next step
+							var nextLng = result.routes[0].overview_path[i+1].lng();
+							var nextLat = result.routes[0].overview_path[i+1].lat();
+							var fromLoc = new google.maps.LatLng(startLat, startLng); //the from point
+							var toLoc = new google.maps.LatLng(nextLat, nextLng); //the two point
+							var distanceBetween = google.maps.geometry.spherical.computeDistanceBetween(fromLoc, toLoc); //the distances between this point and the next point
+							distances.push(distanceBetween); //track the distances for the simulation
 						}
-						showRoute(coordinates); //display the route
-						showUserOptionsBoxDiv("simulate-container");
 					}
+					showRoute(coordinates); //display the route
+					showUserOptionsBoxDiv("simulate-container"); //show the next user options (to simulate the route)
 				}
 			}
 		}
